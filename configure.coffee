@@ -36,6 +36,8 @@ if config == 'dev'
 else
     browserify += ' -g uglifyify'
 
+persistify = browserify.replace('browserify', 'persistify')
+
 modules = ['react', 'react-dom']
 excludes = '-x ' + modules.join(' -x ')
 requires = '-r ' + modules.join(' -r ')
@@ -85,16 +87,16 @@ if (config == 'production')
 else
     rule.run("#{browserify} #{excludes} --list $in > $out.d
         && coffee ./depfileify.coffee $out $out.d
-        && #{browserify} #{excludes} $in -o $out"
+        && #{persistify} #{excludes} $in -o $out"
     )
     .depfile('$out.d')
-    .description("browserify #{excludes} $in -o $out")
+    .description("persistify #{excludes} $in -o $out")
 
 rule = ninja.rule('browserify-require')
 if (config == 'production')
     rule.run("#{browserify} #{requires} $in | #{uglifyjs} > $out")
 else
-    rule.run("#{browserify} #{requires} $in -o $out")
+    rule.run("#{persistify} #{requires} $in -o $out")
 
 
 ninja.rule('sass').run('sass --sourcemap=none --load-path $path $in $out')
